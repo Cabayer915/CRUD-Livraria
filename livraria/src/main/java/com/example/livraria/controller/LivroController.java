@@ -84,4 +84,44 @@ public class LivroController {
         }
         return ResponseEntity.status(404).build();
     }
+
+    @GetMapping("/data/titulo")
+    public ResponseEntity<Livro> findByTituloAndDataPublicacao(
+            @RequestParam String titulo,
+            @RequestParam LocalDate dataPublicacao) {
+
+        Optional<Livro> livroPorTitulo = livroRepository.findByTitulo(titulo);
+        Optional<Livro> livroPorData = livroRepository.findByDataPublicacao(dataPublicacao);
+
+        if (livroPorTitulo.isPresent() && livroPorData.isPresent()) {
+            Livro livroEncontrado = livroPorTitulo.get();
+            Livro livroEncontrado2 = livroPorData.get();
+            return ResponseEntity.status(200).body(livroEncontrado);
+        }
+
+        return ResponseEntity.status(404).build();
+    }
+
+    @GetMapping("/livros/titulo-data-publicacao")
+    public ResponseEntity<List<Livro>> findByDataAndTitulo(
+            @RequestParam LocalDate startDate,
+            @RequestParam LocalDate endDate,
+            @RequestParam String titulo
+    ) {
+        List<Livro> livros = livroRepository.findByDataPublicacaoBetweenAndTituloContainingIgnoreCase(startDate, endDate, titulo);
+        if (livros.isEmpty()) {
+            return ResponseEntity.status(204).build();
+        }
+        return ResponseEntity.status(200).body(livros);
+    }
+
+    @GetMapping("/soma")
+    public ResponseEntity<Double> somaPrecos() {
+        Double soma = livroRepository.sumPrecos();
+        if (soma == null) {
+            return ResponseEntity.status(204).build();
+        }
+        return ResponseEntity.status(200).body(soma);
+    }
+
 }
